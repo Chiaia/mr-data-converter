@@ -413,6 +413,46 @@ var DataGridRenderer = {
   },
 
   //---------------------------------------
+  // Lua Table as FFXI Windower Extdata
+  //---------------------------------------
+
+  luaFFXI: function(dataGrid, headerNames, headerTypes, indent, newLine) {
+    // Inits...
+    var outputText = '{' + newLine,
+      numRows = dataGrid.length,
+      numColumns = headerNames.length,
+      _fmtVal = function(i, j) {
+        if (headerTypes[j]==='int' || headerTypes[j]==='float') {
+          return dataGrid[i][j] || 'nil';
+        } else {
+          return '"' + (dataGrid[i][j]||'') + '"';
+        }
+      };
+
+    // Begin render loop
+    for (var i=0; i<numRows; ++i) {
+      outputText += indent + '["' + dataGrid[i][0] + '"]=';
+      if (numColumns===2) {
+        outputText += _fmtVal(i, 1);
+      } else {
+        outputText += '{';
+        for (var j=1; j<numColumns; ++j) {
+          if (j > 1) outputText += ',';
+          outputText += '{{stat=\'' + headerNames[j] + _fmtVal(i, j);
+        }
+        outputText += ', offset=0}}';
+      }
+      if (i < numRows-1) outputText += ',' + newLine;
+    }
+    outputText += newLine + '}' + newLine;
+
+    // Format data
+    outputText = outputText.replace(/&quot;/g, '\\"');
+
+    return outputText;
+  },
+
+  //---------------------------------------
   // Markdown Table
   //---------------------------------------
 
